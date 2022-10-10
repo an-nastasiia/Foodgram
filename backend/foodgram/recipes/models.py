@@ -56,19 +56,19 @@ class Recipe(models.Model):
         Tag,
         through='RecipeTag',
         verbose_name='Тэг',
-        related_name='recipies',
+        related_name='tags',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор рецепта',
-        related_name='recipies',
+        related_name='recipe_author',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
         verbose_name='Ингредиенты',
-        related_name='recipies',
+        related_name='ingredients',
     )
     is_favorited = models.BooleanField(
         default=False,

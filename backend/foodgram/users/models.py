@@ -29,22 +29,14 @@ class User(AbstractUser):
         blank=False,
         null=False,
     )
-    # is_subscribed = models.BooleanField(
-    #     'Подписан ли текущий пользователь на этого пользователя',
-    #     default=False,
-    # )
+    is_subscribed = models.BooleanField(
+        'Подписан ли текущий пользователь на этого пользователя',
+        default=False,
+    )
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-
-    @property
-    def is_subscribed(self):
-        author = User.objects.get(pk=self.kwargs.get('user_id'))
-        if Subscription.objects.filter(user=self.request.user,
-                                       author=author).exists():
-            return True
-        return False
 
 
 class Subscription(models.Model):
@@ -64,6 +56,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        ordering = ('pk',)
         constraints = [
             models.UniqueConstraint(
                 name='no_double_subscribe',
