@@ -1,8 +1,10 @@
 from rest_framework import serializers, validators, exceptions
 from django.forms import ValidationError
 from djoser import serializers as djoser_serializers
+from colorfield.serializers import ColorField
 from users.models import User, Subscription
-from recipes.models import Tag, Ingredient, Recipe, Favorite, RecipeTag, RecipeIngredient
+from recipes.models import Tag, Ingredient, Recipe, Favorite, RecipeTag, ShoppingCart
+from .fields import Base64ImageField
 
 
 class CreateUserSerializer(djoser_serializers.UserCreateSerializer):
@@ -40,33 +42,6 @@ class GetTokenSerializer(djoser_serializers.TokenCreateSerializer):
     class Meta:
         model = User
         fields = ('password', 'email')
-
-
-class RecipeSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            'id', 'tags', 'author', 'ingredients', 'is_favorited',
-            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
-        )
-        model = Recipe
-
-
-class NestedRecipeSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('id', 'name', 'image', 'cooking_time')
-        model = Recipe
-
-
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('id', 'name', 'measurement_unit')
-        model = Ingredient
-
-
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('id', 'name', 'color', 'slug')
-        model = Tag
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -120,8 +95,6 @@ class UnsubscribeSerializer(serializers.ModelSerializer):
         model = Subscription
 
     def validate(self, data):
-        print("            I'M HEREEEEE            ")
-        print(self.context['request'].parser_context.get('kwargs').get('id'))
         if not Subscription.objects.get(
             user=self.context['request'].user,
             id=self.context['request'].parser_context.get('kwargs').get('id')
@@ -145,7 +118,7 @@ class SubscriptionSerializer(UserSerializer):
 
     def get_recipes(self, obj):
         recipes = Recipe.objects.filter(author=obj)
-        serializer = NestedRecipeSerializer(recipes, many=True)
+        serializer = ShortRecipeSerializer(recipes, many=True)
         return serializer.data
 
     def get_recipes_count(self, obj):
@@ -153,6 +126,76 @@ class SubscriptionSerializer(UserSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Recipe.objects.all(),
+    )
+
+    class Meta:
+        fields = ('user', 'id')
+        model = Favorite
+        validators = (
+            validators.UniqueTogetherValidator(
+                queryset=Subscription.objects.all(),
+                fields=('user', 'id'),
+                message=('Этот рецепт уже в избранном.')
+            ),
+        )
+
+    def to_representation(self, instance):
+        data = ShortRecipeSerializer(
+            instance,
+            context={
+                'request': self.context.get('request')
+            }
+        ).data
+        return data
+
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'image', 'cooking_time')
-        model = Favorite
+        model = Recipe
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('id', 'name', 'measurement_unit')
+        model = Ingredient
+
+
+class TagSerializer(serializers.ModelSerializer):
+    color = ColorField()
+
+    class Meta:
+        fields = ('id', 'name', 'color', 'slug')
+        model = Tag
+
+
+class RecipeSerializer(serializers.ModelSerializer):
+    tags = TagSerializer()
+    author = UserSerializer()
+    ingredients = IngredientSerializer(many=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    image = Base64ImageField()
+
+    class Meta:
+        fields = (
+            'id', 'tags', 'author', 'ingredients', 'is_favorited',
+            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
+        )
+        model = Recipe
+
+    def get_is_favorited(self, obj):
+        return Favorite.objects.filter(
+            user=self.context['request'].user, recipe=obj
+            ).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        return ShoppingCart.objects.filter(
+            user=self.context['request'].user, recipe=obj
+            ).exists()

@@ -1,9 +1,8 @@
-from ast import Sub
 from rest_framework import mixins, viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import User, Subscription
-from recipes.models import Recipe
+from recipes.models import Recipe, Favorite, Tag
 from . import serializers
 from .viewsets import CreateListDestroyViewSet, CreateDestroyViewSet
 from djoser import views
@@ -31,12 +30,9 @@ class SubscriptionViewSet(CreateListDestroyViewSet):
 
     def get_queryset(self):
         queryset = self.request.user.subscriber.all()
-        print('QUERYSET', queryset)
         return [obj.author for obj in queryset]
 
     def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset())
-        print(queryset)
         obj = get_object_or_404(Subscription, user=self.request.user,
                                 author=self.kwargs.get('id'))
         return obj
@@ -51,4 +47,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteViewSet(CreateDestroyViewSet):
-    pass
+    queryset = Favorite.objects.all()
+    serializer_class = serializers.FavoriteSerializer

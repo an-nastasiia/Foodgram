@@ -121,32 +121,15 @@ class Favorite(models.Model):
     )
 
 
-class RecipeTag(models.Model):
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE,
-        )
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE
+
     )
-
-
-class RecipeIngredient(models.Model):
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        )
-    ingredient = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-    )
-
-
-# class ShoppingCart(models.Model):
-#     ingredients = models.ForeignKey(
-#         RecipeIngredient,
-#         to_field='ingredient',
-#         verbose_name='Ингредиенты',
-#         on_delete=models.CASCADE
-#     )
