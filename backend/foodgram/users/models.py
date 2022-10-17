@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 class User(AbstractUser):
@@ -29,14 +29,14 @@ class User(AbstractUser):
         blank=False,
         null=False,
     )
-    is_subscribed = models.BooleanField(
-        'Подписан ли текущий пользователь на этого пользователя',
-        default=False,
-    )
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ('pk',)
+
+    def __str__(self):
+        return self.username
 
 
 class Subscription(models.Model):
@@ -56,7 +56,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        ordering = ('pk',)
+        ordering = ('-pk',)
         constraints = [
             models.UniqueConstraint(
                 name='no_double_subscribe',
