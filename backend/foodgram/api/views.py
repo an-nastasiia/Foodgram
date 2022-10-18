@@ -70,6 +70,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class FavoriteViewSet(CreateDestroyViewSet):
     serializer_class = serializers.FavoriteSerializer
 
+    def get_serializer_class(self, *args, **kwargs):
+        serializer_class = super().get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
+
     def get_queryset(self):
         queryset = self.request.user.user_favorite.all()
         return [obj.recipe for obj in queryset]

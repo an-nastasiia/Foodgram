@@ -171,19 +171,24 @@ class WriteRecipeIngredientsSerializer(serializers.ModelSerializer):
 
 
 class GetRecipeIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
-    name = serializers.PrimaryKeyRelatedField(read_only=True)
-    measurement_unit = serializers.PrimaryKeyRelatedField(read_only=True)
-    amount = serializers.SerializerMethodField(read_only=True)
+    id = serializers.ReadOnlyField()
+    name = serializers.ReadOnlyField()
+    measurement_unit = serializers.ReadOnlyField()
+    amount = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit', 'amount')
         model = RecipeIngredient
 
+    # Этим методом удается получить данные amount, но все равно не понятно,
+    # почему это значение нужно добывать через метод, если в Meta указана
+    # модель RecipeIngredient. Если не прописывать amount = ..., то ошибка такая:
+    #
+    # Got AttributeError when attempting to get a value for field `amount` on serializer `GetRecipeIngredientSerializer`.
+    # The serializer field might be named incorrectly and not match any attribute or key on the `Ingredient` instance.
+    # Original exception text was: 'Ingredient' object has no attribute 'amount'.
     def get_amount(self, obj):
-        return RecipeIngredient.objects.get(
-            recipe_id=self.context['request'].parser_context.get(
-                'kwargs').get('pk'), ingredient=obj).amount
+        return obj.ingredient_recipe.values_list('amount', flat=True).first()
 
 
 class WriteRecipeSerializer(serializers.ModelSerializer):
