@@ -22,7 +22,6 @@ class UserSerializer(djoser_serializers.UserSerializer):
         model = User
         fields = ('email', 'id', 'username', 'first_name',
                   'last_name', 'is_subscribed')
-        requires_context = True
 
     def get_is_subscribed(self, obj):
         if self.context['request'].user.is_anonymous:
@@ -129,7 +128,6 @@ class SubscriptionSerializer(UserSerializer):
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
-    name = serializers.MultipleChoiceField(choices='db.recipes_ingredient.name')
 
     class Meta:
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -171,22 +169,12 @@ class WriteRecipeIngredientsSerializer(serializers.ModelSerializer):
 
 
 class GetRecipeIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField()
-    name = serializers.ReadOnlyField()
-    measurement_unit = serializers.ReadOnlyField()
     amount = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit', 'amount')
-        model = RecipeIngredient
+        model = Ingredient
 
-    # Этим методом удается получить данные amount, но все равно не понятно,
-    # почему это значение нужно добывать через метод, если в Meta указана
-    # модель RecipeIngredient. Если не прописывать amount = ..., то ошибка такая:
-    #
-    # Got AttributeError when attempting to get a value for field `amount` on serializer `GetRecipeIngredientSerializer`.
-    # The serializer field might be named incorrectly and not match any attribute or key on the `Ingredient` instance.
-    # Original exception text was: 'Ingredient' object has no attribute 'amount'.
     def get_amount(self, obj):
         return obj.ingredient_recipe.values_list('amount', flat=True).first()
 
@@ -229,29 +217,22 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
 
         get_ingredients = validated_data.pop('ingredients')
         post_ingredients = []
-        print('INGREDIENTS:', get_ingredients)
         for ingredient in get_ingredients:
-            print('INGREDIENT:', ingredient)
-            print('INSTANCE:', instance)
-            print('AMOUNT:', ingredient['amount'])
             recipe_ingredient = RecipeIngredient.objects.get_or_create(
                 recipe=instance,
                 ingredient=ingredient['id'],
                 amount=ingredient['amount'])
-            print('recipe_ingredient:', recipe_ingredient)
             post_ingredients.append(recipe_ingredient[0].ingredient)
         instance.ingredients.set(post_ingredients)
         return instance
 
     def to_representation(self, instance):
-        print('INSTANCE !!!:', instance)
         data = GetRecipeSerializer(
             instance,
             context={
                 'request': self.context.get('request')
             }
         ).data
-        print('DATA:', data)
         return data
 
 
@@ -291,7 +272,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all(),
+        queryset=Recipe.objects.all()
     )
 
     class Meta:
@@ -305,9 +286,15 @@ class FavoriteSerializer(serializers.ModelSerializer):
             ),
         )
 
+    def create(self, validated_data):
+        return Favorite.objects.create(
+            user=validated_data.get('user'),
+            recipe_id=validated_data.get('id').id
+        )
+
     def to_representation(self, instance):
         data = ShortRecipeSerializer(
-            instance,
+            instance.recipe,
             context={
                 'request': self.context.get('request')
             }
@@ -316,7 +303,20 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Recipe.objects.all()
+    )
 
     class Meta:
-        fields = ('id', 'user', 'recipe')
+        fields = ('user', 'id')
         model = ShoppingCart
+
+    def create(self, validated_data):
+        return ShoppingCart.objects.create(
+            user=validated_data.get('user'),
+            recipe_id=validated_data.get('id').id
+            )

@@ -177,9 +177,15 @@ class Favorite(models.Model):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         ordering = ('-pk',)
+        constraints = [
+            models.UniqueConstraint(
+                name='no_double_favorite',
+                fields=('user', 'recipe'),
+            )
+        ]
 
     def __str__(self):
-        return self.recipe.name + ' в Избранном у ' + self.user
+        return self.recipe.name + ' в Избранном у ' + self.user.username
 
 
 class ShoppingCart(models.Model):
@@ -200,6 +206,12 @@ class ShoppingCart(models.Model):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         ordering = ('-pk',)
+        constraints = [
+            models.UniqueConstraint(
+                name='no_double_add_to_shopping_cart',
+                fields=('user', 'recipe'),
+            )
+        ]
 
     def __str__(self):
-        return self.recipe.name + ' в Корзине у ' + self.user
+        return self.recipe.name + ' в Корзине у ' + self.user.username

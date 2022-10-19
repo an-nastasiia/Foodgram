@@ -1,20 +1,16 @@
-from rest_framework import mixins, viewsets
-
-
-class CreateListDestroyViewSet(mixins.CreateModelMixin,
-                               mixins.ListModelMixin,
-                               mixins.DestroyModelMixin,
-                               viewsets.GenericViewSet):
-    pass
+from rest_framework import mixins, permissions, viewsets
 
 
 class CreateDestroyViewSet(mixins.CreateModelMixin,
                            mixins.DestroyModelMixin,
                            viewsets.GenericViewSet):
-    pass
+    permission_classes = (permissions.IsAuthenticated)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
-class ListRetrieveViewSet(mixins.ListModelMixin,
-                          mixins.RetrieveModelMixin,
-                          viewsets.GenericViewSet):
+class CreateListDestroyViewSet(CreateDestroyViewSet,
+                               mixins.ListModelMixin,
+                               viewsets.GenericViewSet):
     pass

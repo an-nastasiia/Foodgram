@@ -60,7 +60,7 @@ class Subscription(models.Model):
         constraints = [
             models.UniqueConstraint(
                 name='no_double_subscribe',
-                fields=('user', 'author',),
+                fields=('user', 'author'),
             ),
             models.CheckConstraint(
                 name='no_self_subscribe',
