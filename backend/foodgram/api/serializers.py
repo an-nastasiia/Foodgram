@@ -120,8 +120,9 @@ class SubscriptionSerializer(UserSerializer):
 
     def get_recipes(self, obj):
         recipes = Recipe.objects.filter(author=obj)
+        recipes_limit = int(self.context['request'].query_params.get('recipes_limit'))
         serializer = ShortRecipeSerializer(recipes, many=True)
-        return serializer.data
+        return serializer.data[:recipes_limit]
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
@@ -293,6 +294,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
+        self.fields['ingredients'].context.update({"recipe_id": instance})
         data = ShortRecipeSerializer(
             instance.recipe,
             context={

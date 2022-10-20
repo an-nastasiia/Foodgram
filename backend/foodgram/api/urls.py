@@ -9,11 +9,10 @@ router_v1.register(r'^tags/?', views.TagViewSet, basename='tag')
 router_v1.register(
     r'^ingredients/?', views.IngredientViewSet, basename='ingredient'
 )
-# router_v1.register(r'^users/subscriptions/?$',
+# router_v1.register(r'^users/subscriptions/?',
 #                    views.SubscriptionViewSet, basename='subscription')
-# router_v1.register(r'^users/(?P<id>\d+)/subscribe/?$',
+# router_v1.register(r'^users/(?P<id>[^/.]+)/subscribe/?$',
 #                    views.SubscriptionViewSet, basename='subscribe')
-# router_v1.register(r'^tags/', views.TagViewSet, basename='tag')
 
 
 urlpatterns = [

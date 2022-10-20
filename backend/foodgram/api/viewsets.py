@@ -1,4 +1,6 @@
 from rest_framework import mixins, permissions, viewsets
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
 
 
 class CreateDestroyViewSet(mixins.CreateModelMixin,

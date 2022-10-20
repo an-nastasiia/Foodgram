@@ -72,7 +72,7 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         verbose_name='Ингредиенты',
-        related_name='ingredients',
+        related_name='ingredient',
     )
     name = models.CharField(
         'Название',

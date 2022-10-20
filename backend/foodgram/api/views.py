@@ -8,10 +8,8 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from rest_framework import permissions, viewsets
+from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import (LimitOffsetPagination,
-                                       PageNumberPagination)
 from users.models import Subscription
 
 from . import serializers
@@ -22,7 +20,7 @@ class SubscriptionViewSet(CreateListDestroyViewSet):
     serializer_classes = {'create': serializers.SubscribeSerializer,
                           'list': serializers.SubscriptionSerializer,
                           'destroy': serializers.UnsubscribeSerializer}
-    pagination_class = LimitOffsetPagination
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_serializer_class(self):
         return self.serializer_classes.get(self.action)
@@ -46,6 +44,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
     pagination_class = None
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('^name',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -53,8 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'id'
     permission_classes = (CurrentUserOrAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('tags', 'author')
-    pagination_class = LimitOffsetPagination
+    filterset_fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
