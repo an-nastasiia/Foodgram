@@ -1,12 +1,17 @@
 import csv
-import sqlite3
+import psycopg2
+import os
+
+conn = psycopg2.connect(database="postgres",
+                        user='postgres', password='410861342', 
+                        host='db', port='5432'
+)
+
+conn.autocommit = True
+cur = conn.cursor()
 
 
-con = sqlite3.connect('C://Dev/foodgram-project-react/backend/foodgram/db.sqlite3')
-cur = con.cursor()
-
-
-with open('C://Dev/foodgram-project-react/data/ingredients.csv', 'r', newline='', encoding='utf-8') as csv_file:
+with open('./ingredients.csv', 'r', newline='', encoding='utf-8') as csv_file:
     reader = csv.reader(csv_file, delimiter=',')
 
     for row in reader:
