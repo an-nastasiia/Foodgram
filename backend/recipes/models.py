@@ -82,7 +82,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         'Изображение',
-        upload_to='media/',
+        upload_to='media/recipes/',
         blank=False,
     )
     text = models.TextField(

@@ -5,13 +5,16 @@ import base64
 from users.models import User
 
 
-class CurrentAuthor:
+class CurrentID:
     requires_context = True
 
+    def __init__(self, model):
+        self.model = model
+
     def __call__(self, serializer_field):
-        author_id = serializer_field.context['request'].parser_context.get(
-            'kwargs').get('author_id')
-        return get_object_or_404(User, pk=author_id)
+        id = serializer_field.context['request'].parser_context.get(
+            'kwargs').get('id')
+        return get_object_or_404(self.model, pk=id)
 
     def __repr__(self):
         return '%s()' % self.__class__.__name__

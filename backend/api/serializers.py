@@ -1,4 +1,5 @@
 from colorfield.serializers import ColorField
+from colorfield.widgets import ColorWidget
 from django.forms import ValidationError
 from djoser import serializers as djoser_serializers
 from drf_extra_fields.fields import Base64ImageField
@@ -6,6 +7,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 from rest_framework import serializers, validators
 from users.models import Subscription, User
+from .fields import CurrentID
 
 
 class CreateUserSerializer(djoser_serializers.UserCreateSerializer):
@@ -48,12 +50,13 @@ class GetTokenSerializer(djoser_serializers.TokenCreateSerializer):
 
 class SubscribeSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
-        read_only=True,
+        queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()
     )
     id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
         source='author',
+        queryset=User.objects.all(),
+        default=CurrentID(User)
     )
 
     class Meta:
@@ -81,6 +84,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
         ).data
         return data
 
+    def create(self, validated_data):
+        user = validated_data.get('user')
+        id = validated_data.get('id')
+        return Subscription.objects.create(user=user, author=id)
+
 
 class UnsubscribeSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
@@ -89,7 +97,7 @@ class UnsubscribeSerializer(serializers.ModelSerializer):
     )
     id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
-        source='author',
+        source='author'
     )
 
     class Meta:
@@ -120,9 +128,15 @@ class SubscriptionSerializer(UserSerializer):
 
     def get_recipes(self, obj):
         recipes = Recipe.objects.filter(author=obj)
-        recipes_limit = int(self.context['request'].query_params.get('recipes_limit'))
         serializer = ShortRecipeSerializer(recipes, many=True)
-        return serializer.data[:recipes_limit]
+        try:
+            recipes_limit = int(
+                self.context['request'].query_params.get('recipes_limit')
+                )
+            return serializer.data[:recipes_limit]
+        except TypeError:
+            return serializer.data
+        
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
@@ -142,7 +156,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    color = ColorField()
+    color = ColorField(style={'template': ColorWidget})
 
     class Meta:
         fields = ('id', 'name', 'color', 'slug')
@@ -184,7 +198,9 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
-    author = UserSerializer(read_only=True, default=serializers.CurrentUserDefault())
+    author = UserSerializer(
+        read_only=True, default=serializers.CurrentUserDefault()
+    )
     ingredients = WriteRecipeIngredientsSerializer(many=True)
     image = Base64ImageField()
 
@@ -238,12 +254,12 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
 
 
 class GetRecipeSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(read_only=True, many=True)
     author = UserSerializer(read_only=True)
     ingredients = GetRecipeIngredientSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField()
+    image = Base64ImageField(read_only=True)
 
     class Meta:
         fields = (
@@ -269,32 +285,28 @@ class GetRecipeSerializer(serializers.ModelSerializer):
 
 class FavoriteSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
-        read_only=True,
+        queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()
     )
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all()
+        queryset=Recipe.objects.all(),
+        source='recipe',
+        default=CurrentID(User)
     )
 
     class Meta:
         fields = ('user', 'id')
         model = Favorite
-        validators = (
-            validators.UniqueTogetherValidator(
-                queryset=Subscription.objects.all(),
-                fields=('user', 'id'),
-                message=('Этот рецепт уже в избранном.')
-            ),
-        )
 
     def create(self, validated_data):
+        user = validated_data.get('user')
+        id = validated_data.get('id')
         return Favorite.objects.create(
-            user=validated_data.get('user'),
-            recipe_id=validated_data.get('id').id
+            user=user,
+            recipe=id
         )
 
     def to_representation(self, instance):
-        self.fields['ingredients'].context.update({"recipe_id": instance})
         data = ShortRecipeSerializer(
             instance.recipe,
             context={
@@ -306,11 +318,13 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
-        read_only=True,
+        queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()
     )
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all()
+        queryset=Recipe.objects.all(),
+        source='recipe',
+        default=CurrentID(Recipe)
     )
 
     class Meta:
@@ -318,7 +332,9 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         model = ShoppingCart
 
     def create(self, validated_data):
+        user = validated_data.get('user')
+        id = validated_data.get('id')
         return ShoppingCart.objects.create(
-            user=validated_data.get('user'),
-            recipe_id=validated_data.get('id').id
-            )
+            user=user,
+            recipe=id
+        )

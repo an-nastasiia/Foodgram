@@ -10,9 +10,11 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
-from users.models import Subscription
+from rest_framework.filters import SearchFilter
+from users.models import Subscription, User
 
 from . import serializers
+from .filters import IngredientSearchFilter, RecipeFilter
 from .viewsets import CreateDestroyViewSet, CreateListDestroyViewSet
 
 
@@ -33,6 +35,10 @@ class SubscriptionViewSet(CreateListDestroyViewSet):
         return get_object_or_404(Subscription, user=self.request.user,
                                  author=self.kwargs.get('id'))
 
+    def perform_create(self, serializer):
+        author = get_object_or_404(User, pk=self.kwargs.get('id'))
+        serializer.save(user=self.request.user, id=author)
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
@@ -44,7 +50,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
 
 
@@ -53,21 +59,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'id'
     permission_classes = (CurrentUserOrAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
+    filterset_class = RecipeFilter
+    filterset_fields = ('tags', 'author')
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
             return serializers.GetRecipeSerializer
         return serializers.WriteRecipeSerializer
 
+    def perform_create(self, serializer):
+        return serializer.save(author=self.request.user)
+
 
 class FavoriteViewSet(CreateDestroyViewSet):
-    serializer_class = serializers.FavoriteSerializer
     queryset = Favorite.objects.all()
+    serializer_class = serializers.FavoriteSerializer
 
     def get_object(self):
         return get_object_or_404(Favorite, user=self.request.user,
                                  recipe_id=self.kwargs.get('id'))
+
+    def perform_create(self, serializer):
+        recipe_id = get_object_or_404(Recipe, pk=self.kwargs.get('id'))
+        serializer.save(user=self.request.user, id=recipe_id)
 
 
 class ShoppingCartViewSet(CreateDestroyViewSet):
@@ -77,6 +91,10 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
     def get_object(self):
         return get_object_or_404(ShoppingCart, user=self.request.user,
                                  recipe_id=self.kwargs.get('id'))
+
+    def perform_create(self, serializer):
+        recipe_id = get_object_or_404(Recipe, pk=self.kwargs.get('id'))
+        serializer.save(user=self.request.user, id=recipe_id)
 
     def get_ingredients_list(self):
         recipes_in_cart = Recipe.objects.filter(

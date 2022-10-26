@@ -6,7 +6,7 @@ from rest_framework.pagination import (LimitOffsetPagination,
 class CreateDestroyViewSet(mixins.CreateModelMixin,
                            mixins.DestroyModelMixin,
                            viewsets.GenericViewSet):
-    permission_classes = (permissions.IsAuthenticated)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

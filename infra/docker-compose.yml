@@ -15,7 +15,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - static_value:/app/static/backend/
+      - static_value:/app/static/
       - media_value:/app/media/
     depends_on:
       - db
@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
-      - static_value:/app/static/frontend/
+      - static_value:/app/static/
     depends_on:
      - backend
 
