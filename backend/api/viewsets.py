@@ -1,18 +1,17 @@
-from rest_framework import mixins, permissions, viewsets
-from rest_framework.pagination import (LimitOffsetPagination,
-                                       PageNumberPagination)
+from rest_framework import mixins, viewsets
 
 
 class CreateDestroyViewSet(mixins.CreateModelMixin,
                            mixins.DestroyModelMixin,
                            viewsets.GenericViewSet):
-    permission_classes = (permissions.IsAuthenticated,)
+    '''Базовый вьюсет с возможностью создания и удаления объекта.'''
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    pass
 
 
 class CreateListDestroyViewSet(CreateDestroyViewSet,
                                mixins.ListModelMixin,
                                viewsets.GenericViewSet):
+    '''Базовый вьюсет для создания, удаления и получения списка объектов.'''
+
     pass

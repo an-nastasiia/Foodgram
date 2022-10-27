@@ -19,13 +19,13 @@ class Tag(models.Model):
         unique=True,
     )
     slug = models.SlugField(
-        'Уникальный слаг',
+        'Слаг',
         max_length=200,
     )
 
     class Meta:
-        verbose_name = 'Тэг'
-        verbose_name_plural = 'Тэги'
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
         ordering = ('pk',)
 
     def __str__(self):
@@ -59,7 +59,7 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         through='RecipeTag',
-        verbose_name='Тэг',
+        verbose_name='Теги',
         related_name='tags',
     )
     author = models.ForeignKey(
@@ -116,18 +116,18 @@ class RecipeTag(models.Model):
         )
     tag = models.ForeignKey(
         Tag,
-        verbose_name='Тэг',
+        verbose_name='Тег',
         on_delete=models.CASCADE,
         related_name='tag_recipe'
     )
 
     class Meta:
-        verbose_name = 'Тэги рецепта'
-        verbose_name_plural = 'Тэги рецептов'
+        verbose_name = 'Теги рецепта'
+        verbose_name_plural = 'Теги рецептов'
         ordering = ('-pk',)
 
     def __str__(self):
-        return 'Тэги рецепта ' + self.recipe.name
+        return 'Тег ' + self.tag.slug + 'рецепта ' + self.recipe.name
 
 
 class RecipeIngredient(models.Model):
@@ -156,7 +156,7 @@ class RecipeIngredient(models.Model):
         ordering = ('-pk',)
 
     def __str__(self):
-        return 'Ингредиенты рецепта ' + self.recipe.name
+        return 'Ингредиент ' + self.ingredient.name + 'рецепта ' + self.recipe.name
 
 
 class Favorite(models.Model):

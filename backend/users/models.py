@@ -11,7 +11,7 @@ class User(AbstractUser):
         null=False,
         )
     username = models.CharField(
-        'Уникальный юзернейм',
+        'Юзернейм',
         max_length=150,
         unique=True,
         blank=False,

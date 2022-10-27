@@ -7,10 +7,14 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 from rest_framework import serializers, validators
 from users.models import Subscription, User
-from .fields import CurrentID
+from .base_serializers import (BaseSubscribeSerializer,
+                               BaseUserRecipeSerializer,
+                               EmbeddedRecipeSerializer)
 
 
 class CreateUserSerializer(djoser_serializers.UserCreateSerializer):
+    '''Сериализатор для создания объекта модели User.'''
+
     class Meta:
         model = User
         fields = ('email', 'id', 'username',
@@ -18,6 +22,8 @@ class CreateUserSerializer(djoser_serializers.UserCreateSerializer):
 
 
 class UserSerializer(djoser_serializers.UserSerializer):
+    '''Сериализатор для модели User.'''
+
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -33,6 +39,8 @@ class UserSerializer(djoser_serializers.UserSerializer):
 
 
 class ChangePasswordSerializer(djoser_serializers.SetPasswordSerializer):
+    '''Сериализатор для изменения пароля учетной записи пользователя.'''
+
     class Meta:
         model = User
         fields = ('new_password', 'current_password')
@@ -40,6 +48,8 @@ class ChangePasswordSerializer(djoser_serializers.SetPasswordSerializer):
 
 
 class GetTokenSerializer(djoser_serializers.TokenCreateSerializer):
+    '''Сериализатор для получения токена авторизации.'''
+
     password = serializers.CharField(required=True, write_only=True)
     email = serializers.EmailField(required=True)
 
@@ -48,16 +58,8 @@ class GetTokenSerializer(djoser_serializers.TokenCreateSerializer):
         fields = ('password', 'email')
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault()
-    )
-    id = serializers.PrimaryKeyRelatedField(
-        source='author',
-        queryset=User.objects.all(),
-        default=CurrentID(User)
-    )
+class SubscribeSerializer(BaseSubscribeSerializer):
+    '''Сериализатор для записи данных для модели Subscription.'''
 
     class Meta:
         fields = ('user', 'id')
@@ -71,8 +73,16 @@ class SubscribeSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if self.context['request'].user == data['author']:
+        request = self.context['request']
+        if request.method == 'POST' and request.user == data['author']:
             raise ValidationError('Нельзя подписаться на себя.')
+        if request.method == 'DELETE' and not Subscription.objects.get(
+            user=request.user,
+            id=request.parser_context.get('kwargs').get('id')
+        ):
+            raise ValidationError(
+                'Нельзя отписаться от автора, на которого вы не подписаны.'
+                )
         return data
 
     def to_representation(self, instance):
@@ -90,32 +100,9 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return Subscription.objects.create(user=user, author=id)
 
 
-class UnsubscribeSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        source='author'
-    )
-
-    class Meta:
-        fields = ('user', 'id')
-        model = Subscription
-
-    def validate(self, data):
-        if not Subscription.objects.get(
-            user=self.context['request'].user,
-            id=self.context['request'].parser_context.get('kwargs').get('id')
-                ).exists():
-            raise ValidationError(
-                'Нельзя отписаться от автора, на которого вы не подписаны.'
-                )
-        return data
-
-
 class SubscriptionSerializer(UserSerializer):
+    '''Сериализатор для получения данных объектов модели Subscription.'''
+
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -128,7 +115,7 @@ class SubscriptionSerializer(UserSerializer):
 
     def get_recipes(self, obj):
         recipes = Recipe.objects.filter(author=obj)
-        serializer = ShortRecipeSerializer(recipes, many=True)
+        serializer = EmbeddedRecipeSerializer(recipes, many=True)
         try:
             recipes_limit = int(
                 self.context['request'].query_params.get('recipes_limit')
@@ -136,26 +123,22 @@ class SubscriptionSerializer(UserSerializer):
             return serializer.data[:recipes_limit]
         except TypeError:
             return serializer.data
-        
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
 
 
-class ShortRecipeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ('id', 'name', 'image', 'cooking_time')
-        model = Recipe
-
-
 class IngredientSerializer(serializers.ModelSerializer):
+    '''Сериализатор для модели Ingredient.'''
+
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
         model = Ingredient
 
 
 class TagSerializer(serializers.ModelSerializer):
+    '''Сериализатор для модели Tag.'''
+
     color = ColorField(style={'template': ColorWidget})
 
     class Meta:
@@ -164,6 +147,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeTagsSerializer(serializers.ModelSerializer):
+    '''Сериализатор для модели RecipeTag.'''
+
     id = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all()
     )
@@ -174,6 +159,8 @@ class RecipeTagsSerializer(serializers.ModelSerializer):
 
 
 class WriteRecipeIngredientsSerializer(serializers.ModelSerializer):
+    '''Сериализатор для записи данных для модели RecipeIngredient.'''
+
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
     )
@@ -184,6 +171,8 @@ class WriteRecipeIngredientsSerializer(serializers.ModelSerializer):
 
 
 class GetRecipeIngredientSerializer(serializers.ModelSerializer):
+    '''Сериализатор для чтения данных для модели RecipeIngredient.'''
+
     amount = serializers.SerializerMethodField()
 
     class Meta:
@@ -195,6 +184,8 @@ class GetRecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class WriteRecipeSerializer(serializers.ModelSerializer):
+    '''Сериализатор для записи данных для модели Recipe.'''
+
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
@@ -254,6 +245,8 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
 
 
 class GetRecipeSerializer(serializers.ModelSerializer):
+    '''Сериализатор для чтения данных для модели Recipe.'''
+
     tags = TagSerializer(read_only=True, many=True)
     author = UserSerializer(read_only=True)
     ingredients = GetRecipeIngredientSerializer(many=True, read_only=True)
@@ -283,58 +276,17 @@ class GetRecipeSerializer(serializers.ModelSerializer):
             ).exists()
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault()
-    )
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all(),
-        source='recipe',
-        default=CurrentID(User)
-    )
+class FavoriteSerializer(BaseUserRecipeSerializer):
+    '''Сериализатор для модели Favorite.'''
 
     class Meta:
         fields = ('user', 'id')
         model = Favorite
 
-    def create(self, validated_data):
-        user = validated_data.get('user')
-        id = validated_data.get('id')
-        return Favorite.objects.create(
-            user=user,
-            recipe=id
-        )
 
-    def to_representation(self, instance):
-        data = ShortRecipeSerializer(
-            instance.recipe,
-            context={
-                'request': self.context.get('request')
-            }
-        ).data
-        return data
-
-
-class ShoppingCartSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault()
-    )
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all(),
-        source='recipe',
-        default=CurrentID(Recipe)
-    )
+class ShoppingCartSerializer(BaseUserRecipeSerializer):
+    '''Сериализатор для модели ShoppingCart.'''
 
     class Meta:
         fields = ('user', 'id')
         model = ShoppingCart
-
-    def create(self, validated_data):
-        user = validated_data.get('user')
-        id = validated_data.get('id')
-        return ShoppingCart.objects.create(
-            user=user,
-            recipe=id
-        )

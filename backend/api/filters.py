@@ -2,25 +2,20 @@ from rest_framework.filters import SearchFilter
 from django_filters.rest_framework.filterset import FilterSet
 from django_filters import filters
 
-from recipes.models import Favorite, Recipe, Ingredient, ShoppingCart, Tag
+from recipes.models import Recipe, Tag
 
 
 class IngredientSearchFilter(SearchFilter):
+    '''Фильтр для модели Ingredient с параметром поиска name.'''
+
     search_param = 'name'
 
 
-def filter_is_in(self, request):
-    related_name = self._meta.model.recipe.related_name
-    queryset = self.queryset
-    if self.field_name == '1':
-        recipes = user.related_name.values_list('recipe_id', flat=True)
-        queryset = queryset.filter(pk__in=recipes)
-    return queryset
-
-
 class RecipeFilter(FilterSet):
-    is_favorited = filters.BooleanFilter(field_name='is_favorited', method=filter_is_in)
-    is_in_shopping_cart = filters.BooleanFilter(field_name='is_in_shopping_cart', method=filter_is_in)
+    '''Фильтрсет для модели Recipe по четырем полям.'''
+
+    is_favorited = filters.BooleanFilter(method='filter_is_in')
+    is_in_shopping_cart = filters.BooleanFilter(method='filter_is_in')
     author = filters.NumberFilter(field_name='author__id')
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
@@ -30,3 +25,13 @@ class RecipeFilter(FilterSet):
     class Meta:
         model = Recipe
         fields = ('author', 'tags')
+
+    def filter_is_in(self, queryset, name, value):
+        '''Метод для фильтрации по параметрам поиска со значениями 0 или 1.'''
+        user = self.request.user
+        if user.is_authenticated and value:
+            if name == 'is_favorited':
+                return queryset.filter(user_favorite__user=user)
+            elif name == 'is_in_shopping_cart':
+                return queryset.filter(cart_user__user=user)
+        return queryset
