@@ -1,7 +1,7 @@
 import os
-from django import db
 
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='default_secret_key')
 
-DEBUG = os.getenv('DEBUG', default=True)
+DEBUG = os.getenv('DEBUG', default=False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='*')
 
@@ -24,9 +24,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'colorfield',
     'django_filters',
     'djoser',
-    'colorfield',
     'api',
     'users',
     'recipes',

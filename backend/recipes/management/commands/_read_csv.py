@@ -1,7 +1,8 @@
+import os
+import sys
+
 import csv
 import psycopg2
-import sys
-import os
 
 
 def read_csv():

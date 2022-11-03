@@ -1,6 +1,7 @@
-from rest_framework.filters import SearchFilter
-from django_filters.rest_framework.filterset import FilterSet
 from django_filters import filters
+from django_filters.rest_framework.filterset import FilterSet
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework.filters import BooleanFilter
 
 from recipes.models import Recipe, Tag
 
@@ -14,8 +15,8 @@ class IngredientSearchFilter(SearchFilter):
 class RecipeFilter(FilterSet):
     '''Фильтрсет для модели Recipe по четырем полям.'''
 
-    is_favorited = filters.BooleanFilter(method='filter_is_in')
-    is_in_shopping_cart = filters.BooleanFilter(method='filter_is_in')
+    is_favorited = BooleanFilter(method='filter_is_in')
+    is_in_shopping_cart = BooleanFilter(method='filter_is_in')
     author = filters.NumberFilter(field_name='author__id')
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
@@ -31,7 +32,9 @@ class RecipeFilter(FilterSet):
         user = self.request.user
         if user.is_authenticated and value:
             if name == 'is_favorited':
-                return queryset.filter(user_favorite__user=user)
+                return queryset.filter(recipe_favorite__user=user)
             elif name == 'is_in_shopping_cart':
-                return queryset.filter(cart_user__user=user)
+                return queryset.filter(cart_recipe__user=user)
+            else:
+                raise f'Неизвестный параметр {name}'
         return queryset

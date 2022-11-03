@@ -1,21 +1,16 @@
-import os
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from reportlab.lib.units import cm
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from rest_framework import permissions, viewsets
-from rest_framework.decorators import action
-from users.models import Subscription, User
 
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from users.models import Subscription, User
 from . import serializers
+from .generate_pdf import generate_pdf
 from .filters import IngredientSearchFilter, RecipeFilter
-from .viewsets import CreateDestroyViewSet, CreateListDestroyViewSet
 from .permissions import IsAuthorOrAdminOrReadOnly
+from .viewsets import CreateDestroyViewSet, CreateListDestroyViewSet
 
 
 class SubscriptionViewSet(CreateListDestroyViewSet):
@@ -122,7 +117,6 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
                 total=Sum('recipe_ingredient__amount')).order_by('-total')
         return user_cart
 
-    @action(detail=False)
     def download_shopping_cart(self, request):
         '''Скачивание списка покупок в формате pdf.'''
         cart = self.get_ingredients_list()
@@ -130,23 +124,5 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
         response['Content-Disposition'] = (
             'attachment; filename="shopping_cart.pdf"'
             )
-        pdfmetrics.registerFont(
-            TTFont('RadioVolna', (os.path.abspath('data/RadioVolna.ttf')))
-            )
-        pdf = canvas.Canvas(response)
-        pdf.setFont('RadioVolna', 25)
-        pdf.drawString(
-            150, 800, f'{request.user.first_name}, не забудь купить:'
-            )
-        pdf.setFont('RadioVolna', 20)
-        pdf.translate(cm, 26.5*cm)
-        for item in range(len(cart)):
-            pdf.drawString(
-                100, -item*cm,
-                (f"{item+1}) {cart[item].get('ingredients__name')} - "
-                 f"{cart[item].get('total')} "
-                 f"{cart[item].get('ingredients__measurement_unit')};")
-                )
-        pdf.showPage()
-        pdf.save()
-        return response
+        cart = self.get_ingredients_list()
+        return generate_pdf(self, response, cart)

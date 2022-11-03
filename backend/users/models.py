@@ -7,27 +7,19 @@ class User(AbstractUser):
 
     email = models.EmailField(
         'Адрес электронной почты',
-        blank=False,
-        null=False,
         )
     username = models.CharField(
         'Юзернейм',
         max_length=150,
         unique=True,
-        blank=False,
-        null=False,
     )
     first_name = models.CharField(
         'Имя',
         max_length=150,
-        blank=False,
-        null=False,
     )
     last_name = models.CharField(
         'Фамилия',
         max_length=150,
-        blank=False,
-        null=False,
     )
 
     class Meta:
@@ -69,4 +61,4 @@ class Subscription(models.Model):
         ]
 
     def __str__(self):
-        return self.user.username + ' подписан на ' + self.author.username
+        return f'{self.user.username} подписан на {self.author.username}'

@@ -1,6 +1,7 @@
 from colorfield.fields import ColorField
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+
 from users.models import User
 
 
@@ -9,8 +10,6 @@ class Tag(models.Model):
         'Название',
         max_length=200,
         unique=True,
-        blank=False,
-        null=False,
     )
     color = ColorField(
         'Цвет в HEX',
@@ -21,6 +20,7 @@ class Tag(models.Model):
     slug = models.SlugField(
         'Слаг',
         max_length=200,
+        unique=True,
     )
 
     class Meta:
@@ -36,14 +36,10 @@ class Ingredient(models.Model):
     name = models.CharField(
         'Название ингредиента',
         max_length=200,
-        blank=False,
-        null=False,
     )
     measurement_unit = models.CharField(
         'Единица измерения',
         max_length=200,
-        blank=False,
-        null=False,
     )
 
     class Meta:
@@ -77,24 +73,20 @@ class Recipe(models.Model):
     name = models.CharField(
         'Название',
         max_length=200,
-        blank=False,
-        null=False,
     )
     image = models.ImageField(
         'Изображение',
         upload_to='media/recipes/',
-        blank=False,
     )
     text = models.TextField(
         'Описание',
-        blank=False,
-        null=False,
+        max_length=1500,
     )
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления',
-        blank=False,
         validators=(
             MinValueValidator(1),
+            MaxValueValidator(240)
         )
     )
 
@@ -127,7 +119,7 @@ class RecipeTag(models.Model):
         ordering = ('-pk',)
 
     def __str__(self):
-        return 'Тег ' + self.tag.slug + 'рецепта ' + self.recipe.name
+        return f'Тег {self.tag.slug} рецепта {self.recipe.name}'
 
 
 class RecipeIngredient(models.Model):
@@ -156,7 +148,7 @@ class RecipeIngredient(models.Model):
         ordering = ('-pk',)
 
     def __str__(self):
-        return 'Ингредиент ' + self.ingredient.name + 'рецепта ' + self.recipe.name
+        return f'Ингредиент {self.ingredient.name} рецепта {self.recipe.name}'
 
 
 class Favorite(models.Model):
@@ -185,7 +177,7 @@ class Favorite(models.Model):
         ]
 
     def __str__(self):
-        return self.recipe.name + ' в Избранном у ' + self.user.username
+        return f'{self.recipe.name} в Избранном у {self.user.username}'
 
 
 class ShoppingCart(models.Model):
@@ -214,4 +206,4 @@ class ShoppingCart(models.Model):
         ]
 
     def __str__(self):
-        return self.recipe.name + ' в Корзине у ' + self.user.username
+        return f'{self.recipe.name} в Корзине у {self.user.username}'

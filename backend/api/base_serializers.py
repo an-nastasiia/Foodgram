@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from users.models import User
 
 from recipes.models import Recipe
+from users.models import User
 from .default_for_fields import CurrentID
 
 

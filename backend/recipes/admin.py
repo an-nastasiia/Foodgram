@@ -1,8 +1,7 @@
-from django.db.models import Count
 from django.contrib import admin
 
-from .models import (Tag, Ingredient, Recipe, Favorite, ShoppingCart,
-                     RecipeTag, RecipeIngredient)
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient, RecipeTag,
+                     ShoppingCart, Tag)
 
 
 @admin.register(Tag)
@@ -12,8 +11,26 @@ class TagAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'measurement_unit')
+    list_filter = ('name',)
+    list_per_page = 15
+    search_fields = ('name',)
+    empty_value_display = '-пусто-'
+
+
+class RecipeIngredientInline(admin.TabularInline):
+    model = Recipe.ingredients.through
+
+
+class RecipeTagInline(admin.TabularInline):
+    model = Recipe.tags.through
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = [RecipeTagInline, RecipeIngredientInline]
     list_display = ('pk', 'name', 'author', 'in_favorited')
     list_filter = ('author', 'name', 'tags')
     list_per_page = 15
@@ -22,15 +39,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='Добавлено в избранное')
     def in_favorited(self, obj):
         return f'{Favorite.objects.filter(recipe=obj).count()} раз'
-
-
-@admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'measurement_unit')
-    list_filter = ('name',)
-    list_per_page = 15
-    search_fields = ('name',)
-    empty_value_display = '-пусто-'
 
 
 @admin.register(Favorite)
