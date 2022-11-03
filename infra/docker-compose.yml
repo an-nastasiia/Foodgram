@@ -11,8 +11,7 @@ services:
 
   backend:
     build:
-      context: ../backend/
-      dockerfile: Dockerfile
+      context: https://hub.docker.com/repository/docker/nstsa/infra-backend
     restart: always
     volumes:
       - static_value:/app/static/
@@ -24,8 +23,7 @@ services:
 
   frontend:
     build:
-      context: ../frontend/
-      dockerfile: Dockerfile
+      context: https://hub.docker.com/repository/docker/nstsa/infra-frontend
     volumes:
       - ../frontend/:/app/result_build/
       - static_value:/app/static/
