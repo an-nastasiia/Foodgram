@@ -6,10 +6,11 @@ from rest_framework import serializers, validators
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 from users.models import Subscription, User
-from .validators import check_for_duplicates
+
 from .base_serializers import (BaseSubscribeSerializer,
                                BaseUserRecipeSerializer,
                                EmbeddedRecipeSerializer)
+from .validators import check_for_duplicates
 
 
 class CreateUserSerializer(djoser_serializers.UserCreateSerializer):
@@ -86,13 +87,12 @@ class SubscribeSerializer(BaseSubscribeSerializer):
         return data
 
     def to_representation(self, instance):
-        data = SubscriptionSerializer(
+        return SubscriptionSerializer(
             instance.author,
             context={
                 'request': self.context.get('request')
                 }
             ).data
-        return data
 
     def create(self, validated_data):
         user = validated_data.get('user')
@@ -244,13 +244,12 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        data = GetRecipeSerializer(
+        return GetRecipeSerializer(
             instance,
             context={
                 'request': self.context.get('request')
             }
         ).data
-        return data
 
 
 class GetRecipeSerializer(serializers.ModelSerializer):

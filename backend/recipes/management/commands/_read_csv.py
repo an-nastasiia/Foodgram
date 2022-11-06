@@ -1,7 +1,7 @@
 import os
+import csv
 import sys
 
-import csv
 import psycopg2
 
 

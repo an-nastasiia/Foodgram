@@ -7,8 +7,8 @@ from rest_framework import permissions, viewsets
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from users.models import Subscription, User
 from . import serializers
-from .generate_pdf import generate_pdf
 from .filters import IngredientSearchFilter, RecipeFilter
+from .generate_pdf import generate_pdf
 from .permissions import IsAuthorOrAdminOrReadOnly
 from .viewsets import CreateDestroyViewSet, CreateListDestroyViewSet
 
@@ -112,10 +112,9 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
                 'recipe_ingredient__amount',
                 'ingredients__measurement_unit'
             )
-        user_cart = recipes_in_cart.values(
+        return recipes_in_cart.values(
             'ingredients__name', 'ingredients__measurement_unit').annotate(
                 total=Sum('recipe_ingredient__amount')).order_by('-total')
-        return user_cart
 
     def download_shopping_cart(self, request):
         '''Скачивание списка покупок в формате pdf.'''

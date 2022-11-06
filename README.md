@@ -1,1 +1,8 @@
-# praktikum_new_diplom
+#### Адрес сервера, на котором запущен проект:
+
+http://foodgram.serveblog.net/
+
+#### Логин и пароль администратора:
+
+superadmin
+12345678

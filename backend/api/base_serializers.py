@@ -49,10 +49,9 @@ class BaseUserRecipeSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        data = EmbeddedRecipeSerializer(
+        return EmbeddedRecipeSerializer(
             instance.recipe,
             context={
                 'request': self.context.get('request')
             }
         ).data
-        return data
