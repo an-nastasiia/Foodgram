@@ -1,7 +1,20 @@
 from django.contrib import admin
+from django.forms import BaseInlineFormSet
+from django.core.exceptions import ValidationError
 
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient, RecipeTag,
                      ShoppingCart, Tag)
+
+
+class AtLeastOneFormSet(BaseInlineFormSet):
+    def clean(self):
+        super(AtLeastOneFormSet, self).clean()
+        non_empty_forms = 0
+        for form in self:
+            if form.cleaned_data:
+                non_empty_forms += 1
+        if non_empty_forms - len(self.deleted_forms) < 1:
+            raise ValidationError('Добавьте хотя бы один элемент.')
 
 
 @admin.register(Tag)
@@ -22,6 +35,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 class RecipeIngredientInline(admin.TabularInline):
     model = Recipe.ingredients.through
+    formset = AtLeastOneFormSet
 
 
 class RecipeTagInline(admin.TabularInline):

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -59,6 +60,10 @@ class Subscription(models.Model):
                 check=~models.Q(user=models.F('author')),
             ),
         ]
+
+    def clean(self):
+        if self.author == self.user:
+            raise ValidationError('Нельзя подписаться на себя.')
 
     def __str__(self):
         return f'{self.user.username} подписан на {self.author.username}'
