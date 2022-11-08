@@ -7,6 +7,7 @@ http://foodgram.serveblog.net/
 #### Логин и пароль администратора:
 
 superadmin
+
 12345678
 
 ### Что такое Foodgram:
