@@ -9,14 +9,14 @@ from rest_framework.decorators import action
 
 @action(detail=False)
 def generate_pdf(self, response, cart):
-    '''Скачивание списка покупок в формате pdf.'''
+    '''Download shopping list as PDF-file.'''
     pdfmetrics.registerFont(
         TTFont('RadioVolna', (os.path.abspath('data/RadioVolna.ttf')))
         )
     pdf = canvas.Canvas(response)
     pdf.setFont('RadioVolna', 25)
     pdf.drawString(
-        150, 800, f'{self.request.user.first_name}, не забудь купить:'
+        150, 800, f'{self.request.user.first_name}, remember to buy:'
         )
     pdf.setFont('RadioVolna', 20)
     pdf.translate(cm, 26.5*cm)

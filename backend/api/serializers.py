@@ -14,7 +14,7 @@ from .validators import check_for_duplicates
 
 
 class CreateUserSerializer(djoser_serializers.UserCreateSerializer):
-    '''Сериализатор для создания объекта модели User.'''
+    '''Serializer for creation of User model objects.'''
 
     class Meta:
         model = User
@@ -23,7 +23,7 @@ class CreateUserSerializer(djoser_serializers.UserCreateSerializer):
 
 
 class UserSerializer(djoser_serializers.UserSerializer):
-    '''Сериализатор для модели User.'''
+    '''Serializer for User model.'''
 
     is_subscribed = serializers.SerializerMethodField()
 
@@ -40,7 +40,7 @@ class UserSerializer(djoser_serializers.UserSerializer):
 
 
 class ChangePasswordSerializer(djoser_serializers.SetPasswordSerializer):
-    '''Сериализатор для изменения пароля учетной записи пользователя.'''
+    '''Serializer for account password change.'''
 
     class Meta:
         model = User
@@ -49,7 +49,7 @@ class ChangePasswordSerializer(djoser_serializers.SetPasswordSerializer):
 
 
 class GetTokenSerializer(djoser_serializers.TokenCreateSerializer):
-    '''Сериализатор для получения токена авторизации.'''
+    '''Serializer for obtaining authentication token.'''
 
     password = serializers.CharField(required=True, write_only=True)
     email = serializers.EmailField(required=True)
@@ -60,7 +60,7 @@ class GetTokenSerializer(djoser_serializers.TokenCreateSerializer):
 
 
 class SubscribeSerializer(BaseSubscribeSerializer):
-    '''Сериализатор для записи данных для модели Subscription.'''
+    '''Serializer for Subscription model, write allowed.'''
 
     class Meta:
         fields = ('user', 'id')
@@ -69,20 +69,20 @@ class SubscribeSerializer(BaseSubscribeSerializer):
             validators.UniqueTogetherValidator(
                 queryset=Subscription.objects.all(),
                 fields=('user', 'id'),
-                message=('Вы уже подписаны на этого автора.')
+                message=('You are already subscribed to this author')
             ),
         )
 
     def validate(self, data):
         request = self.context['request']
         if request.method == 'POST' and request.user == data['author']:
-            raise ValidationError('Нельзя подписаться на себя.')
+            raise ValidationError('You can not subscribe to yourself')
         if request.method == 'DELETE' and not Subscription.objects.get(
             user=request.user,
             id=request.parser_context.get('kwargs').get('id')
         ):
             raise ValidationError(
-                'Нельзя отписаться от автора, на которого вы не подписаны.'
+                'You cannot unsubscribe from someone you are not subscribed to'
             )
         return data
 
@@ -101,7 +101,7 @@ class SubscribeSerializer(BaseSubscribeSerializer):
 
 
 class SubscriptionSerializer(UserSerializer):
-    '''Сериализатор для получения данных объектов модели Subscription.'''
+    '''Serializer for getting Subscriprion objects' data.'''
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
@@ -129,7 +129,7 @@ class SubscriptionSerializer(UserSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    '''Сериализатор для модели Ingredient.'''
+    '''Serializer for Ingredient model.'''
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
@@ -137,7 +137,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    '''Сериализатор для модели Tag.'''
+    '''Serializer for Tag model.'''
 
     class Meta:
         fields = ('id', 'name', 'color', 'slug')
@@ -145,7 +145,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeTagsSerializer(serializers.ModelSerializer):
-    '''Сериализатор для модели RecipeTag.'''
+    '''Serializer for RecipeTag model.'''
 
     id = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all())
 
@@ -155,7 +155,7 @@ class RecipeTagsSerializer(serializers.ModelSerializer):
 
 
 class WriteRecipeIngredientsSerializer(serializers.ModelSerializer):
-    '''Сериализатор для записи данных для модели RecipeIngredient.'''
+    '''Serializer for RecipeIngredient model, write allowed.'''
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
 
@@ -165,7 +165,7 @@ class WriteRecipeIngredientsSerializer(serializers.ModelSerializer):
 
 
 class GetRecipeIngredientSerializer(serializers.ModelSerializer):
-    '''Сериализатор для чтения данных для модели RecipeIngredient.'''
+    '''Serializer for RecipeIngredient model, read only.'''
 
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
@@ -179,7 +179,7 @@ class GetRecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class WriteRecipeSerializer(serializers.ModelSerializer):
-    '''Сериализатор для записи данных для модели Recipe.'''
+    '''Serializer for Recipe model, write allowed.'''
 
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
@@ -200,17 +200,17 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
     def validate_tags(self, value):
         for tag in value:
             if not Tag.objects.filter(id=tag.id).exists():
-                raise ValidationError('Такого тега не существует.')
+                raise ValidationError('Tag does not exist')
         if check_for_duplicates(value):
-            raise ValidationError('Теги рецепта не должны повторяться.')
+            raise ValidationError('Tags shoud not be repeated')
         return value
 
     def validate_ingredients(self, value):
         for ingredient in value:
             if not Ingredient.objects.filter(id=ingredient['id'].id).exists():
-                raise ValidationError('Такого ингредиента не существует.')
+                raise ValidationError('Ingredient does not exist')
         if check_for_duplicates(value):
-            raise ValidationError('Ингредиенты рецепта не должны повторяться.')
+            raise ValidationError('Ingredients should not be repeated')
         return value
 
     def create(self, validated_data):
@@ -253,7 +253,7 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
 
 
 class GetRecipeSerializer(serializers.ModelSerializer):
-    '''Сериализатор для чтения данных для модели Recipe.'''
+    '''Serializer for Recipe model, read only.'''
 
     tags = TagSerializer(read_only=True, many=True)
     author = UserSerializer(read_only=True)
@@ -287,7 +287,7 @@ class GetRecipeSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(BaseUserRecipeSerializer):
-    '''Сериализатор для модели Favorite.'''
+    '''Serializer for Favorite model.'''
 
     class Meta:
         fields = ('user', 'id')
@@ -295,7 +295,7 @@ class FavoriteSerializer(BaseUserRecipeSerializer):
 
 
 class ShoppingCartSerializer(BaseUserRecipeSerializer):
-    '''Сериализатор для модели ShoppingCart.'''
+    '''Serializer for ShoppingCart model.'''
 
     class Meta:
         fields = ('user', 'id')

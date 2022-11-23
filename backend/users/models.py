@@ -4,28 +4,28 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """Модель пользователя."""
+    """User model."""
 
     email = models.EmailField(
-        'Адрес электронной почты',
+        'email',
         )
     username = models.CharField(
-        'Юзернейм',
+        'username',
         max_length=150,
         unique=True,
     )
     first_name = models.CharField(
-        'Имя',
+        'name',
         max_length=150,
     )
     last_name = models.CharField(
-        'Фамилия',
+        'last name',
         max_length=150,
     )
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
         ordering = ('pk',)
 
     def __str__(self):
@@ -36,19 +36,19 @@ class Subscription(models.Model):
     user = models.ForeignKey(
         User,
         related_name='subscriber',
-        verbose_name='Подписчик',
+        verbose_name='subscriber',
         on_delete=models.CASCADE,
     )
     author = models.ForeignKey(
         User,
         related_name='subscriptions',
-        verbose_name='Автор',
+        verbose_name='author',
         on_delete=models.CASCADE,
     )
 
     class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
+        verbose_name = 'subscription'
+        verbose_name_plural = 'subscriptions'
         ordering = ('-pk',)
         constraints = [
             models.UniqueConstraint(
@@ -63,7 +63,7 @@ class Subscription(models.Model):
 
     def clean(self):
         if self.author == self.user:
-            raise ValidationError('Нельзя подписаться на себя.')
+            raise ValidationError('You can not subscribe to yourself')
 
     def __str__(self):
-        return f'{self.user.username} подписан на {self.author.username}'
+        return f'{self.user.username} is subscribed to {self.author.username}'

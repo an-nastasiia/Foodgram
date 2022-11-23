@@ -6,7 +6,7 @@ from .default_for_fields import CurrentID
 
 
 class EmbeddedRecipeSerializer(serializers.ModelSerializer):
-    '''Сериализатор для модели Recipe с меньшим числом полей.'''
+    '''Serializer for Recipe model with less number of fields.'''
 
     class Meta:
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -14,7 +14,7 @@ class EmbeddedRecipeSerializer(serializers.ModelSerializer):
 
 
 class BaseSubscribeSerializer(serializers.ModelSerializer):
-    '''Базовый сериализатор для модели Subscription с возможностью записи.'''
+    '''Base serializer for Subscription model, write allowed.'''
 
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
@@ -28,7 +28,7 @@ class BaseSubscribeSerializer(serializers.ModelSerializer):
 
 
 class BaseUserRecipeSerializer(serializers.ModelSerializer):
-    '''Базовый сериализатор для many-to-many связей моделей User и Recipe.'''
+    '''Base serializer for many-to-many User and Recipe models' relations.'''
 
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),

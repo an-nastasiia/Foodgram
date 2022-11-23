@@ -6,11 +6,12 @@ from ._read_csv import read_csv
 
 
 class Command(BaseCommand):
-    '''Загрузка данных из csv-файла в базу данных через команду manage.py.'''
+    '''Perform data load from CSV file into database via manage.py command.'''
 
     def handle(self, *args, **options):
         try:
             read_csv()
-            sys.stdout.write('Данные успешно загружены')
+            sys.stdout.write('Data uploaded successfully')
+            sys.stdout.write('')
         except FileNotFoundError as error:
             raise CommandError(error)

@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 
 class IsAuthorOrAdminOrReadOnly(permissions.BasePermission):
-    '''Дает право публикации и редактирования записи ее автору и админу.'''
+    '''Grants publish and edit permissions to the autor and admin.'''
 
     def has_permission(self, request, view):
         return (

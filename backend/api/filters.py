@@ -7,13 +7,13 @@ from recipes.models import Recipe, Tag
 
 
 class IngredientSearchFilter(SearchFilter):
-    '''Фильтр для модели Ingredient с параметром поиска name.'''
+    '''Filter for Ingredient model with search parameter "name".'''
 
     search_param = 'name'
 
 
 class RecipeFilter(FilterSet):
-    '''Фильтрсет для модели Recipe по четырем полям.'''
+    '''Filterset for four fields of Recipe model.'''
 
     is_favorited = BooleanFilter(method='filter_is_in')
     is_in_shopping_cart = BooleanFilter(method='filter_is_in')
@@ -28,7 +28,7 @@ class RecipeFilter(FilterSet):
         fields = ('author', 'tags')
 
     def filter_is_in(self, queryset, name, value):
-        '''Метод для фильтрации по параметрам поиска со значениями 0 или 1.'''
+        '''Method for filtering by search parameter values 0 and 1.'''
         user = self.request.user
         if user.is_authenticated and value:
             if name == 'is_favorited':

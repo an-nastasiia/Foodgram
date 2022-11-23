@@ -1,5 +1,5 @@
 def check_for_duplicates(value):
-    '''Проверка на наличие повторяющихся элементов в списке.'''
+    '''Check if there are duplicates in a list.'''
     value_set = []
     for elem in value:
         if elem in value_set:

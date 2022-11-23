@@ -4,7 +4,7 @@ from rest_framework import mixins, viewsets
 class CreateDestroyViewSet(mixins.CreateModelMixin,
                            mixins.DestroyModelMixin,
                            viewsets.GenericViewSet):
-    '''Базовый вьюсет с возможностью создания и удаления объекта.'''
+    '''Base viewset for creating and destroying objects.'''
 
     pass
 
@@ -12,6 +12,6 @@ class CreateDestroyViewSet(mixins.CreateModelMixin,
 class CreateListDestroyViewSet(CreateDestroyViewSet,
                                mixins.ListModelMixin,
                                viewsets.GenericViewSet):
-    '''Базовый вьюсет для создания, удаления и получения списка объектов.'''
+    '''Base viewset for getting list, creating and destroying objects.'''
 
     pass

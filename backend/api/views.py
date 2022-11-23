@@ -14,7 +14,7 @@ from .viewsets import CreateDestroyViewSet, CreateListDestroyViewSet
 
 
 class SubscriptionViewSet(CreateListDestroyViewSet):
-    '''Вьюсет для модели Subscription.'''
+    '''Viewset for Subscription model.'''
 
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -37,7 +37,7 @@ class SubscriptionViewSet(CreateListDestroyViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    '''Вьюсет для модели Tag.'''
+    '''Viewset for Tag model.'''
 
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
@@ -46,7 +46,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    '''Вьюсет для модели Ingredient.'''
+    '''Viewset for Ingredient model.'''
 
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
@@ -57,7 +57,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    '''Вьюсет для модели Recipe.'''
+    '''Viewset for Recipe model.'''
 
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
@@ -74,7 +74,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteViewSet(CreateDestroyViewSet):
-    '''Вьюсет для модели Favorite.'''
+    '''Viewset for Favorite model.'''
 
     queryset = Favorite.objects.all()
     serializer_class = serializers.FavoriteSerializer
@@ -90,7 +90,7 @@ class FavoriteViewSet(CreateDestroyViewSet):
 
 
 class ShoppingCartViewSet(CreateDestroyViewSet):
-    '''Вьюсет для модели ShoppingCart.'''
+    '''Viewset for ShoppingCart model.'''
 
     queryset = ShoppingCart.objects.all()
     serializer_class = serializers.ShoppingCartSerializer
@@ -105,7 +105,7 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
         serializer.save(user=self.request.user, id=recipe_id)
 
     def get_ingredients_list(self):
-        '''Преобразование списка рецептов в список уникальных ингредиентов.'''
+        '''Transform recipes into a list of unique ingredients.'''
         recipes_in_cart = Recipe.objects.filter(
             cart_recipe__user=self.request.user).values_list(
                 'ingredients__name',
@@ -117,7 +117,7 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
                 total=Sum('recipe_ingredient__amount')).order_by('-total')
 
     def download_shopping_cart(self, request):
-        '''Скачивание списка покупок в формате pdf.'''
+        '''Download shopping list as PDF-file.'''
         cart = self.get_ingredients_list()
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = (

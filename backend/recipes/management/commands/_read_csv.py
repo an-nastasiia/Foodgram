@@ -6,7 +6,7 @@ import psycopg2
 
 
 def read_csv():
-    '''Загрузка данных из csv-файла в базу данных PostgreSQL.'''
+    '''Load data from CSV file into PostgreSQL database.'''
     connection = psycopg2.connect(database="postgres", user='postgres',
                                   password='410861342', host='db',
                                   port='5432')
@@ -26,7 +26,7 @@ def read_csv():
                             (str(row[0]),
                              str(row[1])))
         except Exception() as error:
-            sys.stdout.write(f'Не удалось загрузить данные: {error}.')
+            sys.stdout.write(f'Data not loaded: {error}.')
 
     connection.commit()
     connection.close()

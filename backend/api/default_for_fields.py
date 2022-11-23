@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 
 
 class CurrentID:
-    '''Получение id для присвоения дефолтного значения в поле сериализатора.'''
+    '''Get id to assign as a default value in serializer field.'''
 
     requires_context = True
 
