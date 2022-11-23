@@ -1,7 +1,5 @@
 [English](#about-foodgram) | [Русский](#что-такое-foodgram)
 
-<br>
-
 ---
 
 # FOODGRAM
@@ -9,8 +7,6 @@
 ### Project domain name:
 
 http://foodgram.serveblog.net/
-
-<br>
 
 ## **About Foodgram:**
 
@@ -25,8 +21,6 @@ http://foodgram.serveblog.net/
 * Subscriptions section represents authors followed by current user and some of their recipes. Full lists of authors' recipes are available via hyperlinks.
 
 * Recipes added to the Shopping Cart are transformed into a list of unique ingredients with its amount indicated. A user can download the list as PDF file.
-
-<br>
 
 ## **Tech Stack:**
 
@@ -45,8 +39,6 @@ http://foodgram.serveblog.net/
 *nginx 1.21.3*
 
 *Gunicorn 20.0.4*
-
-<br>
 
 ## **Starting Foodgram in Docker Containers:**
 
@@ -78,8 +70,6 @@ docker-compose start
 docker-compose down -v
 ```
 
-<br>
-
 ## **Example of .env file contents:**
 ```
 SECRET_KEY='very_secret_key'
@@ -92,7 +82,6 @@ POSTGRES_PASSWORD=postgres
 DB_HOST=db_name
 DB_PORT=1234
 ```
-<br>
 
 ## **Foodgram API**:
 
@@ -108,16 +97,12 @@ While Docker containers are running, documentation on the project's API with req
 
 *Email: ananastasiia13@gmail.com*
 
-<br>
-
 ---
 # FOODGRAM
 
 ### Доменное имя проекта:
 
 http://foodgram.serveblog.net/
-
-<br>
 
 ## **Что такое Foodgram**:
 
@@ -133,29 +118,25 @@ http://foodgram.serveblog.net/
 
 * Список покупок содержит перечисление уникальных ингредиентов с указанием количества и формируется автоматически из добавленных пользователем рецептов. Его можно скачать на свое устройство в формате pdf.
 
-<br>
+### **Технологии**:
 
-## **Технологии**:
+*Python 3.7.9*
 
-Python 3.7.9
+*Django 3.2.16*
 
-Django 3.2.16
+*Django REST framework 3.14.0*
 
-Django REST framework 3.14.0
+*Docker 20.10.20*
 
-Docker 20.10.20
+*Docker Compose 2.12.1*
 
-Docker Compose 2.12.1
+*PostgreSQL 13.0*
 
-PostgreSQL 13.0
+*nginx 1.21.3*
 
-nginx 1.21.3
+*Gunicorn 20.0.4*
 
-Gunicorn 20.0.4
-
-<br>
-
-## **Запуск проекта в контейнерах:**
+### **Запуск проекта в контейнерах:**
 
 Находясь в директории *foodgram-project-react/infra/*, последовательно введите в терминале приведенные ниже комнады. Проект будет доступен по адресу *localhost/*.
 
@@ -185,8 +166,6 @@ docker-compose start
 docker-compose down -v
 ```
 
-<br>
-
 ## **Шаблон наполнения env-файла:**
 ```
 SECRET_KEY='very_secret_key'
@@ -199,8 +178,6 @@ POSTGRES_PASSWORD=postgres
 DB_HOST=db_name
 DB_PORT=1234
 ```
-
-<br>
 
 ## **API сайта Foodgram:**
 
@@ -215,7 +192,5 @@ DB_PORT=1234
 *Автор проекта: Анастасия Антипина*
 
 *Email: ananastasiia13@gmail.com*
-
-<br/>
 
 ---
