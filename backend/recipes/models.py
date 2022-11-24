@@ -119,24 +119,24 @@ class RecipeTag(models.Model):
         ordering = ('-pk',)
 
     def __str__(self):
-        return f'Тег {self.tag.slug} рецепта {self.recipe.name}'
+        return f'tag {self.tag.slug} of recipe {self.recipe.name}'
 
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
-        verbose_name='Рецепт',
+        verbose_name='recipe',
         on_delete=models.CASCADE,
         related_name='recipe_ingredient'
         )
     ingredient = models.ForeignKey(
         Ingredient,
-        verbose_name='Ингредиент',
+        verbose_name='ingredient',
         on_delete=models.CASCADE,
         related_name='ingredient_recipe'
     )
     amount = models.PositiveSmallIntegerField(
-        'Количество',
+        'amount',
         validators=(
             MinValueValidator(1),
             MaxValueValidator(2500)
@@ -144,8 +144,8 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Ингредиенты рецепта'
-        verbose_name_plural = 'Ингредиенты рецептов'
+        verbose_name = 'recipe`s ingredient'
+        verbose_name_plural = 'recipes` ingredients'
         ordering = ('-pk',)
 
     def __str__(self):
