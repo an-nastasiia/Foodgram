@@ -60,7 +60,7 @@ jobs:
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
           sudo docker stop $(sudo docker ps -a -q)
-          sudo docker container rm $(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/infra-backend:latest)
+          sudo docker container rm $(sudo docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/infra-backend:latest)
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra-backend:latest
           touch .env
           echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
