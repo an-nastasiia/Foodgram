@@ -45,7 +45,7 @@ jobs:
         with:
           context: backend/.
           push: true
-          tags: nstsa/infra-backend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/infra-backend:latest
 
   deploy:
     runs-on: ubuntu-20.04
@@ -59,11 +59,21 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
-          sudo docker pull nstsa/infra-backend:latest
           sudo docker stop $(sudo docker ps -a -q)
-          sudo docker run --rm -d -p 0:8000 nstsa/infra-backend:latest
+          sudo docker container rm $(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/infra-backend:latest)
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra-backend:latest
+          touch .env
+          echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+          echo DEBUG=${{ secrets.DEBUG }} >> .env
+          echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+          echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo DB_USER=${{ secrets.DB_USER }} >> .env
+          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
           cd foodgram-project-react/infra
-          sudo docker-compose start
+          sudo docker-compose up -d
 
   send_message:
     runs-on: ubuntu-20.04
