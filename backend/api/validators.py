@@ -4,6 +4,5 @@ def check_for_duplicates(value):
     for elem in value:
         if elem in value_set:
             return True
-        else:
-            value_set.append(elem)
+        value_set.append(elem)
     return False

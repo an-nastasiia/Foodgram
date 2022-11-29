@@ -8,7 +8,7 @@ class User(AbstractUser):
 
     email = models.EmailField(
         'email',
-        )
+    )
     username = models.CharField(
         'username',
         max_length=150,

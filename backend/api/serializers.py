@@ -1,10 +1,9 @@
 from djoser import serializers as djoser_serializers
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers, validators
-from rest_framework.serializers import ValidationError
-
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
+from rest_framework import serializers, validators
+from rest_framework.serializers import ValidationError
 from users.models import Subscription, User
 
 from .base_serializers import (BaseSubscribeSerializer,
@@ -91,8 +90,8 @@ class SubscribeSerializer(BaseSubscribeSerializer):
             instance.author,
             context={
                 'request': self.context.get('request')
-                }
-            ).data
+            }
+        ).data
 
     def create(self, validated_data):
         user = validated_data.get('user')

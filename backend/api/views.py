@@ -2,10 +2,10 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, viewsets
-
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import permissions, viewsets
 from users.models import Subscription, User
+
 from . import serializers
 from .filters import IngredientSearchFilter, RecipeFilter
 from .generate_pdf import generate_pdf
@@ -111,7 +111,7 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
                 'ingredients__name',
                 'recipe_ingredient__amount',
                 'ingredients__measurement_unit'
-            )
+        )
         return recipes_in_cart.values(
             'ingredients__name', 'ingredients__measurement_unit').annotate(
                 total=Sum('recipe_ingredient__amount')).order_by('-total')
@@ -122,6 +122,6 @@ class ShoppingCartViewSet(CreateDestroyViewSet):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = (
             'attachment; filename="shopping_cart.pdf"'
-            )
+        )
         cart = self.get_ingredients_list()
         return generate_pdf(self, response, cart)

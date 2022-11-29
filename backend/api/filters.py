@@ -1,9 +1,8 @@
 from django_filters import filters
-from django_filters.rest_framework.filterset import FilterSet
-from rest_framework.filters import SearchFilter
 from django_filters.rest_framework.filters import BooleanFilter
-
+from django_filters.rest_framework.filterset import FilterSet
 from recipes.models import Recipe, Tag
+from rest_framework.filters import SearchFilter
 
 
 class IngredientSearchFilter(SearchFilter):
@@ -33,8 +32,7 @@ class RecipeFilter(FilterSet):
         if user.is_authenticated and value:
             if name == 'is_favorited':
                 return queryset.filter(recipe_favorite__user=user)
-            elif name == 'is_in_shopping_cart':
+            if name == 'is_in_shopping_cart':
                 return queryset.filter(cart_recipe__user=user)
-            else:
-                raise f'Неизвестный параметр {name}'
+            raise f'Неизвестный параметр {name}'
         return queryset

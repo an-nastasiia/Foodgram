@@ -4,7 +4,6 @@ from rest_framework.authtoken.models import TokenProxy
 
 from .models import Subscription, User
 
-
 admin.site.site_header = 'Foodgram Admin'
 admin.site.index_title = 'Site Sections'
 admin.site.site_title = 'Foodgram Administration'

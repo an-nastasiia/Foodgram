@@ -1,7 +1,6 @@
 from colorfield.fields import ColorField
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
 from users.models import User
 
 
@@ -105,7 +104,7 @@ class RecipeTag(models.Model):
         verbose_name='recipe',
         on_delete=models.CASCADE,
         related_name='recipe_tag'
-        )
+    )
     tag = models.ForeignKey(
         Tag,
         verbose_name='tag',
@@ -128,7 +127,7 @@ class RecipeIngredient(models.Model):
         verbose_name='recipe',
         on_delete=models.CASCADE,
         related_name='recipe_ingredient'
-        )
+    )
     ingredient = models.ForeignKey(
         Ingredient,
         verbose_name='ingredient',
