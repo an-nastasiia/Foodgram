@@ -59,8 +59,8 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
-          cd foodgram-project-react
-          sudo docker stop $(sudo docker ps -a -q)
+          # cd foodgram-project-react
+          # sudo docker stop $(sudo docker ps -a -q)
           sudo docker-compose rm backend
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra-backend:latest
           touch .env
