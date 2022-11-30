@@ -65,9 +65,9 @@ jobs:
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra-backend:latest
           cd ..
           touch .env
-          echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+          echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
           echo DEBUG=${{ secrets.DEBUG }} >> .env
-          echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+          echo ALLOWED_HOSTS="${{ secrets.ALLOWED_HOSTS }}" >> .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
           echo DB_USER=${{ secrets.DB_USER }} >> .env
