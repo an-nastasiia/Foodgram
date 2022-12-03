@@ -60,11 +60,11 @@ jobs:
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
           cd foodgram-project-react
-          sudo docker stop $(sudo docker ps -a -q)
+
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra-backend:latest
           cd infra
-          sudo docker-compose rm backend
-          sudo rm .env
+
+
           touch .env
           echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
           echo DEBUG=${{ secrets.DEBUG }} >> .env
