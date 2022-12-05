@@ -39,7 +39,7 @@ const Subscription = ({ email, first_name, last_name, username, removeSubscripti
         {shouldShowButton && <li className={styles.subscriptionMore}>
           <LinkComponent
             className={styles.subscriptionLink}
-            title={`Еще ${moreRecipes} ${countForm(moreRecipes, ['рецепт', 'рецепта', 'рецептов'])}...`}
+            title={`Show ${moreRecipes} ${countForm(moreRecipes, ['more recipe', 'more recipes', 'more recipes'])}...`}
             href={`/user/${id}`}
           />
         </li>}

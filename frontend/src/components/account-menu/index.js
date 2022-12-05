@@ -11,11 +11,11 @@ const AccountMenu = ({ onSignOut }) => {
       <LinkComponent
         className={styles.menuLink}
         href='/signin'
-        title='Войти'
+        title='Sign in'
       />
       <LinkComponent
         href='/signup'
-        title='Создать аккаунт'
+        title='Sign up'
         className={styles.menuButton}
       />
     </div>
@@ -24,13 +24,13 @@ const AccountMenu = ({ onSignOut }) => {
     <LinkComponent
       className={styles.menuLink}
       href='/change-password'
-      title='Изменить пароль'
+      title='Change Password'
     />
     <a
       className={styles.menuLink}
       onClick={onSignOut}
     >
-      Выход
+      Sign out
     </a>
   </div>
 }

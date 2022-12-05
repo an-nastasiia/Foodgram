@@ -14,42 +14,42 @@ const SignUp = ({ onSignUp }) => {
     {authContext && <Redirect to='/recipes' />}
     <Container>
       <MetaTags>
-        <title>Регистрация</title>
-        <meta name="description" content="Продуктовый помощник - Регистрация" />
-        <meta property="og:title" content="Регистрация" />
+        <title>Sign Up</title>
+        <meta name="description" content="Foodgram - Sign Up" />
+        <meta property="og:title" content="Sign Up" />
       </MetaTags>
-      <Title title='Регистрация' />
+      <Title title='Sign Up' />
       <Form className={styles.form} onSubmit={e => {
         e.preventDefault()
         onSignUp(values)
       }}>
         <Input
-          label='Имя'
+          label='First Name'
           name='first_name'
           required
           onChange={handleChange}
         />
         <Input
-          label='Фамилия'
+          label='Last Name'
           name='last_name'
           required
           onChange={handleChange}
         />
         <Input
-          label='Имя пользователя'
+          label='Username'
           name='username'
           required
           onChange={handleChange}
         />
 
         <Input
-          label='Адрес электронной почты'
+          label='Email'
           name='email'
           required
           onChange={handleChange}
         />
         <Input
-          label='Пароль'
+          label='Password'
           type='password'
           name='password'
           required
@@ -61,7 +61,7 @@ const SignUp = ({ onSignUp }) => {
           className={styles.button}
           disabled={!isValid}
         >
-          Создать аккаунт
+          Sign Up
         </Button>
       </Form>
     </Container>

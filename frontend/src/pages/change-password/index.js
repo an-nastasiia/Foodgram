@@ -13,11 +13,11 @@ const ChangePassword = ({ onPasswordChange }) => {
   return <Main>
     <Container>
       <MetaTags>
-        <title>Изменить пароль</title>
-        <meta name="description" content="Продуктовый помощник - Изменить пароль" />
-        <meta property="og:title" content="Изменить пароль" />
+        <title>Change Password</title>
+        <meta name="description" content="Foodgram - Change Password" />
+        <meta property="og:title" content="Change Password" />
       </MetaTags>
-      <Title title='Изменить пароль' />
+      <Title title='Change Password' />
       <Form
         className={styles.form}
         onSubmit={e => {
@@ -27,21 +27,21 @@ const ChangePassword = ({ onPasswordChange }) => {
       >
         <Input
           required
-          label='Старый пароль'
+          label='Old Password'
           type='password'
           name='current_password'
           onChange={handleChange}
         />
         <Input
           required
-          label='Новый пароль'
+          label='New Password'
           type='password'
           name='new_password'
           onChange={handleChange}
         />
         <Input
           required
-          label='Подтверждение нового пароля'
+          label='Confirm New Password'
           type='password'
           name='repeat_password'
           onChange={handleChange}
@@ -51,7 +51,7 @@ const ChangePassword = ({ onPasswordChange }) => {
           type='submit'
           disabled={!isValid || values.new_password !== values.repeat_password}
         >
-          Изменить пароль
+          Change Password
         </Button>
       </Form>
     </Container>
